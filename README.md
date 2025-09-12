@@ -34,6 +34,12 @@ npm install
 
 ### 3. Configure API Key
 ```bash
+cp .env.example .env
+```
+
+You can get a free API key from OpenWeatherMap (https://openweathermap.org/)
+Edit the .env file like so:
+```bash
 NUXT_PUBLIC_WEATHER_API_KEY=your_api_key_here
 ```
 

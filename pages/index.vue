@@ -136,6 +136,14 @@
   };
 
   onMounted(() => {
+    const config = useRuntimeConfig();
+
+    if (!config.public.weatherApiKey) {
+      console.error('API key is missing.');
+
+      return;
+    }
+    
     if (!route.query.cityName) {
       detectUserCity();
     }
