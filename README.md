@@ -2,7 +2,7 @@
 
 A minimalistic weather reader application built with **Vue 3 + Nuxt 3 + TailwindCSS**.  
 It allows users to search for cities and view real-time weather details in a modal interface.
-This is my test task submission for Sun Finance Front-end developer position.
+This is my test task submission for Front-end developer position.
 
 ---
 
