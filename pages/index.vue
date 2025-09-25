@@ -68,9 +68,8 @@
     alert('Link copied to clipboard!');
   };
 
-  const checkCityName = (city: CityWeather, cityName: string) => {
-    return city.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "") === cityName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
-  }
+  const normalize = (str: string) =>
+    str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
   watch(() =>
     route.query.cityName,
@@ -82,7 +81,7 @@
       }
 
       const res = await fetchCityWeather({ city: String(cityName) })
-      selectedCity.value = res.find(c => checkCityName(c, String(cityName))) || null
+      selectedCity.value = res.find(c => normalize(c.name) === normalize(String(cityName))) || null
     },
     { immediate: true }
   );
