@@ -26,7 +26,7 @@
         <ul
           v-if="displayResults.length"
           class="absolute left-0 right-0 mt-2 border border-gray-200 rounded-lg 
-                max-h-60 overflow-y-auto z-30 bg-white shadow-lg 
+                max-h-60 overflow-y-auto z-10 bg-white shadow-lg 
                 divide-y divide-gray-100 overflow-x-hidden"
         >
           <li
@@ -76,15 +76,12 @@
 
   const query = ref('');
   const results = ref<CityWeather[]>([]);
-  const lastSearchedCities = ref<CityWeather[]>([]);
   const minQueryLength = 2;
 
-  onMounted(() => {
-    const stored = localStorage.getItem('lastSearchedCities');
-
-    if (stored) {
-      lastSearchedCities.value = JSON.parse(stored);
-    } 
+  const lastSearchedCities = useCookie<CityWeather[]>('lastSearchedCities', {
+    default: () => ([]),
+    watch: true,
+    sameSite: 'lax',
   });
 
   const sortedResults = computed(
@@ -96,7 +93,7 @@
       return sortedResults.value;
     }
     
-    return lastSearchedCities.value;
+    return lastSearchedCities.value || [];
   });
 
   const emit = defineEmits(['citySelected']);
@@ -115,7 +112,7 @@
     }
 
     debounceTimeout = setTimeout(async () => {
-      results.value = await fetchCityWeather(val);
+      results.value = await fetchCityWeather({ city: val });
     }, 300);
   });
 
@@ -128,8 +125,10 @@
   const selectCity = (city: CityWeather) => {
     emit('citySelected', city);
 
-    lastSearchedCities.value = [city, ...lastSearchedCities.value.filter(c => c.id !== city.id)].slice(0, 5);
-    localStorage.setItem('lastSearchedCities', JSON.stringify(lastSearchedCities.value));
+    lastSearchedCities.value = [
+      city,
+      ...lastSearchedCities.value.filter(c => c.id !== city.id),
+    ].slice(0, 5);
 
     results.value = [];
     query.value = '';
@@ -137,7 +136,6 @@
 
   const clearHistory = () => {
     lastSearchedCities.value = [];
-    localStorage.removeItem('lastSearchedCities');
   };
 </script>
 

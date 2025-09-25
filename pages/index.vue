@@ -5,7 +5,7 @@
     <transition name="fade">
       <div
         v-if="selectedCity"
-        class="fixed inset-0 bg-black/30 backdrop-blur-sm z-40"
+        class="fixed inset-0 bg-black/30 backdrop-blur-sm z-20"
       ></div>
     </transition>
 
@@ -13,7 +13,7 @@
       <WeatherModal
         v-if="selectedCity"
         :city="selectedCity"
-        class="z-50"
+        class="z-30"
         @close="closeModal"
         @copyLink="copyLink"
       ></WeatherModal>
@@ -81,25 +81,8 @@
         return;
       }
 
-      const cachedCity = cities.value.find(c => checkCityName(c, String(cityName)));
-      if (cachedCity) {
-        selectedCity.value = cachedCity;
-
-        return;
-      }
-
-      try {
-        const res = await fetchCityWeather(String(cityName));
-        const city = res.find(c => checkCityName(c, String(cityName)));
-
-        if (city) {
-          selectedCity.value = city;
-        } else {
-          clearCityNameFromQuery();
-        }
-      } catch {
-        clearCityNameFromQuery();
-      }
+      const res = await fetchCityWeather({ city: String(cityName) })
+      selectedCity.value = res.find(c => checkCityName(c, String(cityName))) || null
     },
     { immediate: true }
   );
@@ -114,19 +97,11 @@
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
 
-        const config = useRuntimeConfig();
-        const res = await $fetch<WeatherApiResponse>(`https://api.openweathermap.org/data/2.5/find`, {
-          params: {
-            lat,
-            lon,
-            appid: config.public.weatherApiKey,
-            units: 'metric',
-          },
-        });
+        const res = await fetchCityWeather({ lat, lon });
 
-        const cityList = res?.list;
-        if (cityList?.length > 0) {
-          selectedCity.value = cityList[0];
+        if (res.length) {
+          selectedCity.value = res[0]
+          router.replace({ query: { ...route.query, cityName: res[0].name } })
         }
       },
       (error) => {
